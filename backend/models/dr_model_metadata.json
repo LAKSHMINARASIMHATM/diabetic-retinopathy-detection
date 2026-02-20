@@ -1,0 +1,68 @@
+{
+  "model_name": "Random Forest",
+  "n_features": 24,
+  "feature_names": [
+    "Age",
+    "Diabetes Duration",
+    "HbA1c %",
+    "Systolic BP",
+    "Diastolic BP",
+    "BMI",
+    "Cholesterol mg dL",
+    "IOP mmHg",
+    "VA_Right_Score",
+    "VA_Left_Score",
+    "VA_Avg_Score",
+    "VA_Diff",
+    "MAP",
+    "Pulse_Pressure",
+    "HbA1c_Duration",
+    "Age_Duration_Ratio",
+    "Gender",
+    "Ethnicity",
+    "Diabetes Type",
+    "Smoking",
+    "Kidney Disease",
+    "Neuropathy",
+    "Eye Side",
+    "Has_Symptom"
+  ],
+  "class_names": [
+    "No DR",
+    "Mild DR",
+    "Moderate DR",
+    "Severe DR",
+    "Proliferative DR"
+  ],
+  "test_accuracy": 0.2167,
+  "test_f1": 0.1915,
+  "test_qw_kappa": -0.1617,
+  "cv_accuracy_mean": 0.2467,
+  "cv_accuracy_std": 0.0542,
+  "train_samples": 240,
+  "test_samples": 60,
+  "dataset_total": 300,
+  "trained_at": "2026-02-19T15:23:53.332267",
+  "all_results": {
+    "Random Forest": {
+      "accuracy": 0.2167,
+      "f1": 0.1915,
+      "qw_kappa": -0.1617
+    },
+    "Gradient Boosting": {
+      "accuracy": 0.1667,
+      "f1": 0.1526,
+      "qw_kappa": -0.2824
+    },
+    "HistGradientBoosting": {
+      "accuracy": 0.1833,
+      "f1": 0.1649,
+      "qw_kappa": -0.2857
+    },
+    "Ensemble": {
+      "accuracy": 0.2,
+      "f1": 0.1801,
+      "qw_kappa": -0.1926
+    }
+  }
+}
