@@ -9,44 +9,89 @@
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python)](https://python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
-**A dual-AI engine for Diabetic Retinopathy screening — combining deep learning on fundus images with ensemble machine learning on clinical features.**
+**A state-of-the-art dual-AI engine for Diabetic Retinopathy (DR) screening — combining Deep Learning on fundus images with Ensemble Machine Learning on clinical features.**
 
-[🔬 Image Analysis](#-image-analysis-page) · [🩺 Clinical Assessment](#-clinical-assessment-page) · [📋 Prescription Generator](#-prescription-generator) · [📖 About](#-about)
+[🔬 Image Analysis](#-image-analysis) · [🩺 Clinical Assessment](#-clinical-assessment) · [� Prescription Generator](#-prescription-generator) · [📖 Research & Models](#-the-models)
 
 </div>
 
 ---
 
-## 📸 Overview
+## � Root Cause & The Problem
 
-RetinaAI provides two independent, complementary pathways to detect and grade Diabetic Retinopathy (DR) severity across the **International Clinical DR Scale (ICDR)** — Grade 0 (No DR) through Grade 4 (Proliferative DR):
+**Diabetic Retinopathy (DR)** is a diabetes complication caused by damage to the blood vessels of the light-sensitive tissue at the back of the eye (retina). It is a leading cause of vision loss globally.
 
-| Pathway | Model | Input | Output |
-|---|---|---|---|
-| **Image Analysis** | EfficientNetB3 (Deep Learning) | Fundus photograph | DR grade + Grad-CAM heatmap |
-| **Clinical Assessment** | Random Forest (Ensemble ML) | 24 clinical features | DR grade + risk factors |
-
-Both models are trained on real-world data and served via a **FastAPI** backend, with a **Next.js 15** frontend.
+### The Challenge:
+- **Delayed Diagnosis**: Early stages (Mild/Moderate) are often asymptomatic, meaning patients only seek help when vision loss is irreversible.
+- **Specialist Scarcity**: Manual screening of fundus images requires trained ophthalmologists, who are often unavailable in rural or underserved areas.
+- **Resource Constraints**: Traditional clinical screening involves multiple tests (HbA1c, Blood Pressure, BMI, etc.) that may be overlooked without a centralized triage system.
 
 ---
 
-## 🧠 Model Architecture
+## 🎯 Our Proposed Solution: RetinaAI
 
-### 🔬 EfficientNetB3 — Image Model
-- **Base:** EfficientNetB3 pre-trained on ImageNet (5.3M parameters)
-- **Fine-tuning:** Two-stage (head-only → full) on fundus image dataset
-- **Input:** 224×224 RGB retinal fundus photograph
-- **Augmentation:** CLAHE, flips, rotations, brightness shifts, Gaussian noise
-- **TTA:** 3-round Test-Time Augmentation for robust predictions
-- **Explainability:** Grad-CAM heatmap overlay highlighting retinal lesions
-- **Output:** 5-class softmax (No DR / Mild / Moderate / Severe / Proliferative)
+RetinaAI provides a **multi-modal AI framework** to bridge the screening gap. By providing both image-based and data-driven analysis, it empowers primary care physicians to identify high-risk patients early.
 
-### 🌲 Random Forest — Clinical Model
-- **Algorithm:** Random Forest Classifier (500 estimators, max depth 12)
-- **Features:** 24 engineered features from patient clinical data
-- **Training:** 240 patients with 5-fold stratified cross-validation
-- **Class balancing:** `class_weight='balanced'`
-- **Features include:** Age, HbA1c, BP, BMI, IOP, visual acuity, diabetes duration, comorbidities, and derived features (MAP, pulse pressure, HbA1c × duration)
+### The "Dual-Engine" Approach:
+1.  **Vision Engine**: Analyzes retinal fundus photographs to detect early lesions (microaneurysms, hemorrhages).
+2.  **Clinical Engine**: Analyzes 24+ patient health metrics to predict DR risk even when high-quality imaging isn't available.
+
+---
+
+## ✨ Key Features
+
+-   **Dual-Inference Pipeline**: Independent image and clinical models for 360-degree patient assessment.
+-   **Grad-CAM Explainability**: Visual heatmaps highlighting lesions that the AI identified, building clinical trust.
+-   **Automated Prescription Generator**: Instantly generates printable professional medical prescriptions based on AI findings.
+-   **ICDR Grading**: Full alignment with the *International Clinical Diabetic Retinopathy* severity scale (Grades 0 to 4).
+-   **Responsive Dashboard**: Premium dark-mode interface with glassmorphic design and smooth animations.
+-   **Real-time Analytics**: Probability breakdown for each DR stage with clinical follow-up recommendations.
+
+---
+
+## 🧠 The Models: Why & How
+
+### 1. Image Model: EfficientNetB3
+**Why EfficientNetB3?**
+We selected **EfficientNetB3** for its exceptional balance between accuracy and computational efficiency. Compared to ResNet or VGG, B3 uses "Compound Scaling" which uniformly scales depth, width, and resolution, making it ideal for detecting the fine, granular details of retinal lesions (like microaneurysms) without requiring massive server clusters.
+
+**How it works:**
+-   **Input**: 224×224 RGB fundus image.
+-   **Preprocessing**: Applied **CLAHE** (Contrast Limited Adaptive Histogram Equalization) to normalize illumination across different fundus cameras.
+-   **Transfer Learning**: Pre-trained on ImageNet and fine-tuned in two stages (Freezing base → Unfreezing top 30 layers).
+-   **Augmentation**: Uses *albumentations* for realistic variations in brightness, noise, and rotation to improve robustness.
+
+### 2. Clinical Model: Random Forest (Ensemble)
+**Why Random Forest?**
+Clinical data is often non-linear and contains outliers. **Random Forest** was chosen because it is an ensemble of 500 decision trees that effectively handles small patient datasets (300+ records) without overfitting. It also provides **Feature Importance**, allowing us to see how variables like *HbA1c* and *Diabetes Duration* impact the prediction.
+
+**How it works:**
+-   **Features**: 24 engineered features (MAP, Pulse Pressure, VA Scores, etc.).
+-   **Triage**: Acts as a first-line screening tool for clinics without fundus cameras.
+-   **Probability**: Provides a soft-voting confidence interval across all 5 DR stages.
+
+---
+
+## 🏗️ Technical Architecture & Workflow
+
+```mermaid
+graph TD
+    A[User/Clinician] -->|Upload Image| B(Next.js Frontend)
+    A -->|Fill Clinical Form| B
+    B -->|FastAPI REST| C{Backend Engine}
+    C -->|Image Data| D[EfficientNetB3 Model]
+    C -->|Tabular Data| E[Random Forest Model]
+    D -->|Inference + Grad-CAM| F[DR Grade & Heatmap]
+    E -->|Inference| G[DR Grade & Risk Analysis]
+    F --> B
+    G --> B
+    B -->|Generate| H[PDF Prescription]
+```
+
+1.  **Preprocessing**: Images are cropped to circular ROI and enhanced; clinical data is normalized via StandardScaler.
+2.  **Inference**: Models run in parallel on the FastAPI backend (Python 3.12).
+3.  **Explainability**: The system generates a gradient-weighted class activation map (Grad-CAM) to explain its "thinking."
+4.  **Reporting**: Frontend logic maps the predicted grade to standard clinical actions.
 
 ---
 
@@ -100,12 +145,11 @@ diabetic-retinopathy-detection/
 ```bash
 git clone https://github.com/LAKSHMINARASIMHATM/diabetic-retinopathy-detection.git
 cd diabetic-retinopathy-detection
+npm install
+npm run dev
 ```
 
----
-
-### 2️⃣ Backend Setup
-
+### 2. Backend Setup (Windows)
 ```bash
 cd backend
 
@@ -114,11 +158,6 @@ python -m venv venv
 
 # Activate (Windows)
 .\venv\Scripts\activate
-
-# Activate (macOS/Linux)
-source venv/bin/activate
-
-# Install dependencies
 pip install -r requirements.txt
 ```
 
@@ -267,22 +306,15 @@ Landing page with feature overview, DR severity scale, model statistics, and lin
 | Grade | Name | Key Features | Action |
 |---|---|---|---|
 | **0** | No DR | No abnormalities | Annual screening |
-| **1** | Mild NPDR | Microaneurysms only | Recheck in 12 months |
-| **2** | Moderate NPDR | Hemorrhages, exudates, cotton wool spots | Referral in 3–6 months |
-| **3** | Severe NPDR | 4-2-1 rule: extensive hemorrhages, venous beading, IRMA | Urgent referral 1–3 months |
-| **4** | Proliferative DR | Neovascularization, vitreous hemorrhage | **Immediate** laser/anti-VEGF |
+| **1** | Mild NPDR | Microaneurysms only | 12-month follow-up |
+| **2** | Moderate | Hemorrhages, exudates | 3-6 month referral |
+| **3** | Severe | 4-2-1 rule met | 1-3 month urgent referral |
+| **4** | Proliferative| Neovascularization | **Immediate** laser/injection |
 
 ---
 
-## ⚠️ Disclaimer
-
-> RetinaAI is intended for **educational and screening assistance purposes only**. It is **not** a substitute for professional medical advice, diagnosis, or treatment by a licensed ophthalmologist or physician. Always consult a qualified healthcare professional for medical decisions.
-
----
-
-## 📜 License
-
-This project is licensed under the **MIT License** — see [LICENSE](LICENSE) for details.
+## ⚠️ Medical Disclaimer
+This software is intended for **research and educational assistance** and is not a substitute for professional medical diagnosis. Decisions regarding patient care should always be made by a qualified healthcare professional.
 
 ---
 
@@ -290,6 +322,6 @@ This project is licensed under the **MIT License** — see [LICENSE](LICENSE) fo
 
 Made with ❤️ by [LAKSHMINARASIMHATM](https://github.com/LAKSHMINARASIMHATM)
 
-⭐ Star this repo if you find it useful!
+**[Visit Repository](https://github.com/LAKSHMINARASIMHATM/diabetic-retinopathy-detection)**
 
 </div>
