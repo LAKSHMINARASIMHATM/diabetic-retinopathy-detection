@@ -23,6 +23,11 @@ import time
 import base64
 import logging
 import json
+
+# ── Suppress GPU/CUDA warnings on CPU Space ────────────────
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 from pathlib import Path
 from typing import Optional
 
