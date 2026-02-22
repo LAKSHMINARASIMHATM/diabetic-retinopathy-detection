@@ -7,7 +7,7 @@ import {
 } from "lucide-react"
 import { Navbar } from "@/components/Navbar"
 
-const API_BASE = "http://localhost:8000"
+const API_BASE = "https://narasimha01tm-retinopath-api.hf.space"
 
 const SEVERITY = [
     { label: "No DR", color: "#22c55e", bg: "rgba(34,197,94,0.10)", border: "rgba(34,197,94,0.25)" },
@@ -153,7 +153,7 @@ export default function ClinicalPage() {
             setResult(data)
         } catch (e: any) {
             if (e.name === "TimeoutError" || e.name === "TypeError") {
-                setError("Cannot reach the backend API. Make sure the FastAPI server is running on port 8000.")
+                setError("Cannot reach the AI backend (Hugging Face Space). The server might be booting up or sleeping. Please try again in 30 seconds.")
             } else {
                 setError(e.message || "Clinical assessment failed. Please try again.")
             }
